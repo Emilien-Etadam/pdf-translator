@@ -56,10 +56,11 @@ class TranslationAssembler:
         """Assemble all translations into a single markdown file."""
         if output_file is None:
             title = self.progress['metadata'].get('title', 'translation')
+            target_lang = self.progress.get('target_lang', 'translation')
             # Clean filename
             safe_title = "".join(c for c in title if c.isalnum() or c in (' ', '-', '_')).strip()
             safe_title = safe_title.replace(' ', '_')[:50]
-            output_file = self.output_dir / f"{safe_title}_english.md"
+            output_file = self.output_dir / f"{safe_title}_{target_lang}.md"
 
         translated, missing = self.get_translation_status()
 
@@ -72,10 +73,15 @@ class TranslationAssembler:
 
         # Header
         metadata = self.progress['metadata']
+        source_lang = self.progress.get('source_lang_name', 'Unknown')
+        target_lang = self.progress.get('target_lang_name', 'Unknown')
+
         content.append(f"# {metadata.get('title', 'Untitled')}")
-        content.append(f"## {metadata.get('author', 'Unknown Author')}")
+        if metadata.get('author'):
+            content.append(f"## {metadata.get('author')}")
         content.append("")
-        content.append(f"**English Translation**")
+        content.append(f"**{target_lang} Translation**")
+        content.append(f"*Original language: {source_lang}*")
         content.append(f"*Translated: {datetime.now().strftime('%B %d, %Y')}*")
         content.append("")
         content.append("---")
@@ -211,10 +217,14 @@ class TranslationAssembler:
         """Display current translation status."""
         translated, missing = self.get_translation_status()
 
+        source_lang = self.progress.get('source_lang_name', 'Unknown')
+        target_lang = self.progress.get('target_lang_name', 'Unknown')
+
         print("=" * 80)
         print("TRANSLATION STATUS")
         print("=" * 80)
-        print(f"PDF: {self.progress['metadata'].get('title', 'Unknown')}")
+        print(f"Document: {self.progress['metadata'].get('title', 'Unknown')}")
+        print(f"Translation: {source_lang} → {target_lang}")
         print(f"Total pages: {self.progress['metadata']['total_pages']}")
         print(f"Total chunks: {len(self.progress['chunks'])}")
         print(f"Translated: {len(translated)}/{len(self.progress['chunks'])} chunks")
@@ -236,8 +246,8 @@ def main():
     )
     parser.add_argument(
         '--project-dir',
-        default='~/pdf-translator',
-        help='Project directory (default: ~/pdf-translator)'
+        default='.',
+        help='Project directory (default: current directory)'
     )
     parser.add_argument(
         '--status',

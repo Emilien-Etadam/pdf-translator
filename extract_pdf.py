@@ -14,10 +14,67 @@ import argparse
 import sys
 
 
+# Common languages with full names
+LANGUAGES = {
+    'en': 'English',
+    'fr': 'Français',
+    'es': 'Español',
+    'de': 'Deutsch',
+    'it': 'Italiano',
+    'pt': 'Português',
+    'ru': 'Русский',
+    'zh': '中文',
+    'ja': '日本語',
+    'ko': '한국어',
+    'ar': 'العربية',
+    'hi': 'हिन्दी',
+    'nl': 'Nederlands',
+    'pl': 'Polski',
+    'sv': 'Svenska',
+    'tr': 'Türkçe',
+    'other': 'Other'
+}
+
+
+def ask_language_interactive(prompt_text):
+    """Ask user to select a language interactively."""
+    print("\n" + "=" * 80)
+    print(prompt_text)
+    print("=" * 80)
+    print("\nAvailable languages:")
+
+    # Display languages in a nice format
+    lang_codes = [code for code in LANGUAGES.keys() if code != 'other']
+    for i, code in enumerate(lang_codes, 1):
+        print(f"  {i:2d}. {code:3s} - {LANGUAGES[code]}")
+    print(f"  {len(lang_codes) + 1:2d}. other - Other (type manually)")
+
+    while True:
+        try:
+            choice = input(f"\nEnter number (1-{len(lang_codes) + 1}): ").strip()
+            choice_num = int(choice)
+
+            if 1 <= choice_num <= len(lang_codes):
+                selected_code = lang_codes[choice_num - 1]
+                print(f"✓ Selected: {LANGUAGES[selected_code]} ({selected_code})")
+                return selected_code, LANGUAGES[selected_code]
+            elif choice_num == len(lang_codes) + 1:
+                custom_code = input("Enter language code (e.g., 'vi' for Vietnamese): ").strip().lower()
+                custom_name = input("Enter language name (e.g., 'Tiếng Việt'): ").strip()
+                print(f"✓ Selected: {custom_name} ({custom_code})")
+                return custom_code, custom_name
+            else:
+                print(f"Invalid choice. Please enter a number between 1 and {len(lang_codes) + 1}.")
+        except (ValueError, KeyboardInterrupt):
+            print("\nCancelled.")
+            sys.exit(0)
+
+
 class PDFExtractor:
     """Handles PDF text extraction and chunking."""
 
-    def __init__(self, pdf_path, output_dir, chunk_size=20):
+    def __init__(self, pdf_path, output_dir, chunk_size=20, source_lang=None, target_lang=None,
+                 source_lang_name=None, target_lang_name=None):
         """
         Initialize the PDF extractor.
 
@@ -25,10 +82,18 @@ class PDFExtractor:
             pdf_path: Path to the PDF file
             output_dir: Directory to save chunks
             chunk_size: Number of pages per chunk
+            source_lang: Source language code
+            target_lang: Target language code
+            source_lang_name: Source language full name
+            target_lang_name: Target language full name
         """
         self.pdf_path = Path(pdf_path)
         self.output_dir = Path(output_dir)
         self.chunk_size = chunk_size
+        self.source_lang = source_lang
+        self.target_lang = target_lang
+        self.source_lang_name = source_lang_name
+        self.target_lang_name = target_lang_name
         self.chunks_dir = self.output_dir / 'chunks'
         self.progress_file = self.output_dir / 'progress.json'
 
@@ -153,6 +218,10 @@ class PDFExtractor:
                 'metadata': metadata,
                 'chunk_size': self.chunk_size,
                 'total_chunks': len(chunks),
+                'source_lang': self.source_lang,
+                'source_lang_name': self.source_lang_name,
+                'target_lang': self.target_lang,
+                'target_lang_name': self.target_lang_name,
                 'chunks': chunks
             }
 
@@ -164,8 +233,9 @@ class PDFExtractor:
             print(f"  Total chunks created: {len(chunks)}")
             print(f"  Chunks directory: {self.chunks_dir}")
             print(f"  Progress file: {self.progress_file}")
-            print(f"\nNext step: Use Claude Code to translate chunks")
-            print(f'  Example: "translate chunk 1"')
+            print(f"\nNext step: Use Claude Code to translate chunks from {self.source_lang_name} to {self.target_lang_name}")
+            print(f'  Example: "translate chunk 1 from {self.source_lang_name} to {self.target_lang_name}"')
+            print(f'  Or simply: "translate chunk 1"')
 
 
 def main():
@@ -179,8 +249,8 @@ def main():
     )
     parser.add_argument(
         '--output-dir',
-        default='~/pdf-translator',
-        help='Output directory (default: ~/pdf-translator)'
+        default='.',
+        help='Output directory (default: current directory)'
     )
     parser.add_argument(
         '--chunk-size',
@@ -194,6 +264,19 @@ def main():
         default=1,
         help='Starting page number (default: 1)'
     )
+    parser.add_argument(
+        '--source-lang',
+        help='Source language code (e.g., en, fr). If not provided, will ask interactively.'
+    )
+    parser.add_argument(
+        '--target-lang',
+        help='Target language code (e.g., en, fr). If not provided, will ask interactively.'
+    )
+    parser.add_argument(
+        '--non-interactive',
+        action='store_true',
+        help='Non-interactive mode (requires --source-lang and --target-lang)'
+    )
 
     args = parser.parse_args()
 
@@ -205,11 +288,50 @@ def main():
         print(f"Error: PDF file not found: {pdf_path}", file=sys.stderr)
         sys.exit(1)
 
+    # Determine languages
+    if args.non_interactive:
+        if not args.source_lang or not args.target_lang:
+            print("Error: --source-lang and --target-lang are required in non-interactive mode", file=sys.stderr)
+            sys.exit(1)
+        source_lang = args.source_lang
+        target_lang = args.target_lang
+        source_lang_name = LANGUAGES.get(source_lang, source_lang.capitalize())
+        target_lang_name = LANGUAGES.get(target_lang, target_lang.capitalize())
+    else:
+        # Interactive language selection
+        if args.source_lang:
+            source_lang = args.source_lang
+            source_lang_name = LANGUAGES.get(source_lang, source_lang.capitalize())
+            print(f"Source language: {source_lang_name} ({source_lang})")
+        else:
+            source_lang, source_lang_name = ask_language_interactive("SELECT SOURCE LANGUAGE (language of the PDF)")
+
+        if args.target_lang:
+            target_lang = args.target_lang
+            target_lang_name = LANGUAGES.get(target_lang, target_lang.capitalize())
+            print(f"Target language: {target_lang_name} ({target_lang})")
+        else:
+            target_lang, target_lang_name = ask_language_interactive("SELECT TARGET LANGUAGE (desired translation)")
+
+    # Display summary
+    print("\n" + "=" * 80)
+    print("TRANSLATION PROJECT SETUP")
+    print("=" * 80)
+    print(f"PDF file: {pdf_path.name}")
+    print(f"Translation: {source_lang_name} → {target_lang_name}")
+    print(f"Chunk size: {args.chunk_size} pages")
+    print(f"Output directory: {output_dir}")
+    print("=" * 80)
+
     # Create extractor and run
     extractor = PDFExtractor(
         pdf_path=pdf_path,
         output_dir=output_dir,
-        chunk_size=args.chunk_size
+        chunk_size=args.chunk_size,
+        source_lang=source_lang,
+        target_lang=target_lang,
+        source_lang_name=source_lang_name,
+        target_lang_name=target_lang_name
     )
 
     extractor.extract_all(start_page=args.start_page - 1)
