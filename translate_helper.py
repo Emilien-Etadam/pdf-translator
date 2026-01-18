@@ -73,8 +73,13 @@ class TranslationHelper:
             print(f"Error: Chunk {chunk_num} not found", file=sys.stderr)
             return False
 
+        # Get language info
+        source_lang = self.progress.get('source_lang_name', 'Unknown')
+        target_lang = self.progress.get('target_lang_name', 'Unknown')
+
         print("=" * 80)
         print(f"CHUNK {chunk_num} - Pages {chunk['start_page']}-{chunk['end_page']}")
+        print(f"Translation: {source_lang} → {target_lang}")
         print("=" * 80)
 
         # Check if already translated
@@ -90,8 +95,9 @@ class TranslationHelper:
             print(source)
             print()
             print("=" * 80)
-            print("Ready to translate the above text.")
-            print(f"Save translation to: {trans_file}")
+            print(f"Ready to translate the above text from {source_lang} to {target_lang}.")
+            print(f"Tell Claude: \"Translate this chunk to {target_lang} and save it\"")
+            print(f"Translation will be saved to: {trans_file}")
             print("=" * 80)
         else:
             print(f"Error: Could not read chunk file", file=sys.stderr)
@@ -131,10 +137,15 @@ class TranslationHelper:
             if trans_file.exists():
                 translated_count += 1
 
+        # Get language info
+        source_lang = self.progress.get('source_lang_name', 'Unknown')
+        target_lang = self.progress.get('target_lang_name', 'Unknown')
+
         print("=" * 80)
         print("TRANSLATION PROGRESS")
         print("=" * 80)
-        print(f"Book: {self.progress['metadata'].get('title', 'Unknown')}")
+        print(f"Document: {self.progress['metadata'].get('title', 'Unknown')}")
+        print(f"Translation: {source_lang} → {target_lang}")
         print(f"Total pages: {self.progress['metadata']['total_pages']}")
         print(f"Total chunks: {total_chunks}")
         print(f"Translated: {translated_count}/{total_chunks}")
@@ -190,8 +201,8 @@ def main():
     )
     parser.add_argument(
         '--project-dir',
-        default='~/pdf-translator',
-        help='Project directory (default: ~/pdf-translator)'
+        default='.',
+        help='Project directory (default: current directory)'
     )
     parser.add_argument(
         '--next',

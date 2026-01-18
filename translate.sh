@@ -5,7 +5,8 @@
 # Author: Austin Morrissey
 # Co-Authored-By: Claude <noreply@anthropic.com>
 
-PROJECT_DIR="$HOME/pdf-translator"
+# Use current directory if not specified
+PROJECT_DIR="${PROJECT_DIR:-.}"
 
 # Change to project directory
 cd "$PROJECT_DIR" || exit 1

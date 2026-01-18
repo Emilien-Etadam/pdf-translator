@@ -1,94 +1,101 @@
-# PDF Translation System
+# Multilingual PDF Translation System
 
-A semi-automated PDF translation system using Claude Code as the translation engine.
+A semi-automated PDF translation system using Claude Code as the translation engine. Supports **any language pair** with an interactive CLI interface.
 
+## ✨ Features
 
-## 🎯 Project Highlight: "Networking for Spies"
+- 🌍 **Multilingual Support** - Translate between any language pair (English ↔ French, Spanish → German, etc.)
+- 💬 **Interactive CLI** - Simple question-and-answer interface for configuration
+- 💰 **No API costs** - Uses Claude Code session
+- 📚 **High-quality translation** - Literary-quality output preserving style and context
+- 📊 **Progress tracking** - Resume capability for large documents
+- 📄 **Multiple output formats** - Markdown and HTML
+- 🔄 **Reusable** - Works with any PDF document
 
-This system was built to translate **"Нетворкинг для разведчиков"** — a 274-page **Russian Cyrillic book on intelligence tradecraft** written by **Elena Vavilova and Andrey Bezrukov**, two former Russian intelligence officers who operated undercover in the United States for over 20 years.
+## 🚀 Quick Start
 
-### About the Authors
-The authors were among the "Illegals" exposed in the 2010 spy scandal and exchanged in the largest spy swap since the Cold War. Their book reveals professional networking techniques used in espionage operations, now adapted for business and personal development. This translation makes their unique intelligence perspective accessible to English readers.
-
-### Translation Achievement
-- ✅ **274 pages** of Russian Cyrillic text → English
-- ✅ **14 chunks** processed systematically (20 pages each)
-- ✅ **Literary quality** translation preserving spy terminology and author voice
-- ✅ Complete **Markdown + HTML** outputs for optimal reading
-
----
-
-## Overview
-
-This system extracts text from PDFs, splits it into manageable chunks, and uses Claude Code for high-quality translation. Designed for translating large documents (200+ pages) without API costs.
-
-## Features
-
-- ✅ No API costs (uses Claude Code session)
-- ✅ High-quality literary translation
-- ✅ Progress tracking and resume capability
-- ✅ Multiple output formats (Markdown, HTML)
-- ✅ Interactive workflow with review points
-- ✅ Reusable for any PDF in any language pair
-
-## Project Structure
-
-```
-pdf-translator/
-├── extract_pdf.py           # Extract and chunk PDF text
-├── translate_helper.py      # Translation workflow helper
-├── assemble_output.py       # Assemble final output
-├── chunks/                  # Extracted source text
-├── translations/            # Translated chunks
-├── output/                  # Final combined output
-└── progress.json            # Translation progress tracker
-```
-
-## Quick Start
-
-### 1. Extract PDF into chunks
+### 1. Extract PDF and Configure Languages
 
 ```bash
-python3 extract_pdf.py "path/to/your.pdf" --chunk-size 20
+python3 extract_pdf.py "path/to/your.pdf"
 ```
 
-This creates:
-- Individual chunk files in `chunks/`
-- Progress tracking in `progress.json`
+The tool will interactively ask you:
+- **Source language** (the language of your PDF)
+- **Target language** (desired translation language)
+- **Chunk size** (optional, defaults to 20 pages)
 
-### 2. Check translation status
+**Example interaction:**
+```
+================================================================================
+SELECT SOURCE LANGUAGE (language of the PDF)
+================================================================================
+
+Available languages:
+   1. en  - English
+   2. fr  - Français
+   3. es  - Español
+   4. de  - Deutsch
+   5. it  - Italiano
+   ...
+
+Enter number (1-16): 1
+✓ Selected: English (en)
+
+================================================================================
+SELECT TARGET LANGUAGE (desired translation)
+================================================================================
+...
+Enter number (1-16): 2
+✓ Selected: Français (fr)
+```
+
+**Non-interactive mode** (for scripts):
+```bash
+python3 extract_pdf.py "book.pdf" --source-lang en --target-lang fr --non-interactive
+```
+
+### 2. Check Translation Status
 
 ```bash
 python3 translate_helper.py --status
 ```
 
-### 3. Translate chunks (Interactive)
+Shows:
+- Language pair
+- Total pages and chunks
+- Progress percentage
+- List of translated/pending chunks
+
+### 3. Translate Chunks
+
+**Interactive approach:**
 
 ```bash
 # Show next untranslated chunk
 python3 translate_helper.py --next
-
-# Show specific chunk
-python3 translate_helper.py --chunk 1
 ```
 
-This displays the source text. Then in Claude Code, say:
+This displays the source text. Then tell Claude Code:
 
 ```
-"Translate chunk 1 to English and save it"
+"Translate this chunk and save it"
 ```
 
-Claude Code will:
-1. Read the chunk
-2. Translate it with high literary quality
-3. Save to `translations/chunk_001_translation.md`
+or
 
-Repeat for each chunk, or say:
+```
+"Translate chunk 1 from English to French and save it"
+```
+
+**Batch translation:**
 ```
 "Translate the next 5 chunks"
+"Translate chunks 1 through 10"
+"Continue translating from where we left off"
 ```
 
-### 4. Assemble final output
+### 4. Assemble Final Output
 
 ```bash
 # Create both Markdown and HTML
@@ -101,95 +108,98 @@ python3 assemble_output.py --format markdown
 python3 assemble_output.py --status
 ```
 
-Output files go to `output/` directory.
+Output files are saved to the `output/` directory with language-specific naming.
 
-## Current Project Status
-
-**Book:** Нетворкинг для разведчиков (Networking for Spies)
-**Authors:** Elena Vavilova & Andrey Bezrukov
-**Language:** Russian → English
-**Total Pages:** 274
-**Total Chunks:** 14 (20 pages each, except last)
-
-## Translation Workflow Examples
-
-### Translate one chunk at a time
+## 📁 Project Structure
 
 ```
-You: "Show me chunk 1"
-Claude: [Displays Russian text for pages 1-20]
-
-You: "Translate this to English and save as chunk_001_translation.md"
-Claude: [Translates and saves]
-
-You: "Show next chunk"
-Claude: [Displays chunk 2]
+your-project/
+├── extract_pdf.py           # Extract and configure translation project
+├── translate_helper.py      # Translation workflow helper
+├── assemble_output.py       # Assemble final output
+├── chunks/                  # Extracted source text (auto-created)
+├── translations/            # Translated chunks (auto-created)
+├── output/                  # Final combined output (auto-created)
+└── progress.json            # Project configuration & progress
 ```
 
-### Batch translation
+## 🌍 Supported Languages
 
+The interactive CLI supports:
+
+- **English** (en)
+- **Français** (fr)
+- **Español** (es)
+- **Deutsch** (de)
+- **Italiano** (it)
+- **Português** (pt)
+- **Русский** (ru)
+- **中文** (zh)
+- **日本語** (ja)
+- **한국어** (ko)
+- **العربية** (ar)
+- **हिन्दी** (hi)
+- **Nederlands** (nl)
+- **Polski** (pl)
+- **Svenska** (sv)
+- **Türkçe** (tr)
+- **Other** - Custom language input
+
+## 📖 Usage Examples
+
+### Example 1: English → French
+
+```bash
+python3 extract_pdf.py "english-book.pdf"
+# Select: 1 (English) → 2 (Français)
+
+python3 translate_helper.py --next
+# Claude translates chunk to French
+
+python3 assemble_output.py
+# Creates: english-book_fr.md
 ```
-You: "Translate chunks 1 through 5"
-Claude: [Translates all 5 chunks sequentially]
+
+### Example 2: Spanish → German
+
+```bash
+python3 extract_pdf.py "libro-español.pdf" --source-lang es --target-lang de
+python3 translate_helper.py --next
+# ... translate chunks ...
+python3 assemble_output.py
 ```
 
-### Resume after break
+### Example 3: Using Custom Language
 
+```bash
+python3 extract_pdf.py "vietnamese-doc.pdf"
+# Select "other" for source
+# Enter: vi (Vietnamese)
+# Enter: Tiếng Việt
 ```
-You: "What's our translation progress?"
-Claude: [Shows status - e.g., 8/14 chunks done]
 
-You: "Continue translating from where we left off"
-Claude: [Picks up at chunk 9]
-```
-
-## Translation Quality Guidelines
-
-Claude Code will maintain:
-
-- **Literary quality:** Preserving author's voice and style
-- **Context awareness:** Remembering terms and concepts from earlier
-- **Structure preservation:** Chapter headings, formatting, emphasis
-- **Cultural adaptation:** Handling idioms and cultural references
-- **Consistency:** Same terms translated the same way throughout
-
-## Output Formats
-
-### Markdown
-Clean, readable format with:
-- Preserved structure and headings
-- Page number references
-- Easy to edit or convert further
-
-### HTML
-Styled web version with:
-- Beautiful typography (serif fonts)
-- Dark/light mode support
-- Print-friendly CSS
-- Responsive design
-
-## Scripts Reference
+## 🛠️ Advanced Options
 
 ### extract_pdf.py
 
 ```bash
-# Basic usage
-python3 extract_pdf.py "input.pdf"
-
-# Custom chunk size
-python3 extract_pdf.py "input.pdf" --chunk-size 15
-
-# Custom output directory
-python3 extract_pdf.py "input.pdf" --output-dir ~/my-translation
+# Custom chunk size (smaller for complex texts)
+python3 extract_pdf.py "book.pdf" --chunk-size 10
 
 # Start from specific page
-python3 extract_pdf.py "input.pdf" --start-page 50
+python3 extract_pdf.py "book.pdf" --start-page 50
+
+# Custom output directory
+python3 extract_pdf.py "book.pdf" --output-dir ~/my-translation
+
+# Non-interactive (for automation)
+python3 extract_pdf.py "book.pdf" --source-lang en --target-lang fr --non-interactive
 ```
 
 ### translate_helper.py
 
 ```bash
-# Show status
+# Show overall progress
 python3 translate_helper.py --status
 
 # Show next untranslated chunk
@@ -197,28 +207,63 @@ python3 translate_helper.py --next
 
 # Show specific chunk
 python3 translate_helper.py --chunk 5
+
+# Custom project directory
+python3 translate_helper.py --project-dir ~/my-project --next
 ```
 
 ### assemble_output.py
 
 ```bash
-# Create all formats
+# Create all formats (default)
 python3 assemble_output.py
 
 # Markdown only
 python3 assemble_output.py --format markdown
 
-# HTML only (requires 'markdown' package)
+# HTML only
 python3 assemble_output.py --format html
 
-# Just check status
+# Check status
 python3 assemble_output.py --status
 ```
 
-## Requirements
+## 📋 Workflow Script
+
+The included `translate.sh` provides shortcuts:
+
+```bash
+./translate.sh status    # Show progress
+./translate.sh next      # Show next chunk
+./translate.sh chunk 5   # Show chunk 5
+./translate.sh assemble  # Create final output
+```
+
+## 💡 Translation Quality Tips
+
+### For Best Results
+
+1. **Review periodically** - Check translations every few chunks
+2. **Provide context** - Mention document type (technical, literary, legal, etc.)
+3. **Consistency** - Let Claude know about terminology preferences
+4. **Adjust as needed** - Request retranslation if quality varies
+
+### Example Claude Instructions
+
+```
+"This is a technical manual about aviation. Please maintain formal tone
+and preserve technical terminology."
+
+"This is a literary novel. Focus on preserving the author's voice and
+emotional tone while adapting cultural references for French readers."
+
+"Retranslate chunk 3 with more formal language"
+```
+
+## 🔧 Requirements
 
 - Python 3.6+
-- PyPDF2 (installed automatically)
+- PyPDF2 (auto-installed)
 - markdown (optional, for HTML output)
 
 Install optional dependencies:
@@ -226,33 +271,27 @@ Install optional dependencies:
 pip3 install markdown
 ```
 
-## Tips
+## 📚 Use Cases
 
-### For Best Translation Quality
+- **Books & Novels** - Literary translation with style preservation
+- **Academic Papers** - Technical translation maintaining precision
+- **Legal Documents** - Formal translation with consistent terminology
+- **Technical Manuals** - Accurate translation of specialized content
+- **Business Documents** - Professional translation
+- **Articles & Reports** - Any multi-page PDF content
 
-1. **Review periodically:** Check translations every few chunks
-2. **Provide context:** If Claude seems off, mention the book's theme/style
-3. **Adjust as needed:** You can ask Claude to retranslate sections differently
+## 🎯 Common Translation Pairs
 
-### For Large Documents
+Popular language combinations:
+- 🇬🇧 English ↔ 🇫🇷 French
+- 🇬🇧 English ↔ 🇪🇸 Spanish
+- 🇬🇧 English ↔ 🇩🇪 German
+- 🇬🇧 English ↔ 🇯🇵 Japanese
+- 🇫🇷 French ↔ 🇪🇸 Spanish
+- 🇷🇺 Russian ↔ 🇬🇧 English
+- 🇨🇳 Chinese ↔ 🇬🇧 English
 
-1. **Work in sessions:** Translate 3-5 chunks per session
-2. **Save progress:** The system automatically tracks what's done
-3. **Resume anytime:** Just run `--next` to continue
-
-### For Different Languages
-
-The system works with any language pair:
-
-```bash
-# Extract any PDF
-python3 extract_pdf.py "chinese-book.pdf"
-
-# When translating, specify:
-"Translate this chunk from Chinese to English"
-```
-
-## Troubleshooting
+## 🐛 Troubleshooting
 
 ### Chunk file not found
 ```bash
@@ -260,31 +299,65 @@ python3 extract_pdf.py "chinese-book.pdf"
 python3 extract_pdf.py "your.pdf"
 ```
 
-### Translation seems inconsistent
-```
-"Let me provide context: This book is about intelligence networking
-and maintains a professional but engaging tone."
-```
-
-### Want to retranslate a chunk
-```
-"Retranslate chunk 3 with a more formal tone"
+### Language configuration incorrect
+```bash
+# Delete progress.json and re-extract
+rm progress.json
+python3 extract_pdf.py "your.pdf"
 ```
 
-## Use Cases
+### Translation quality issues
+```
+Tell Claude: "Please provide more context about document type and
+adjust translation style accordingly"
+```
 
-- 📚 Translating books
-- 📄 Academic papers
-- 📋 Technical documentation
-- 📰 Long-form articles
-- 🗂️ Any multi-page PDF with extractable text
+### Want to retranslate
+```
+"Retranslate chunk 3 with a different approach"
+```
 
-## License
+## 📊 Output Formats
+
+### Markdown
+- Clean, readable format
+- Preserved structure and headings
+- Page number references
+- Easy to edit or convert further
+
+### HTML
+- Styled web version
+- Beautiful typography
+- Dark/light mode support
+- Print-friendly CSS
+- Responsive design
+
+## 🔄 Resume Capability
+
+The system automatically tracks progress in `progress.json`:
+
+```bash
+# After a break, just continue
+python3 translate_helper.py --next
+
+# Check what's left
+python3 translate_helper.py --status
+```
+
+## 📜 License
 
 MIT License - Feel free to use and modify
 
-## Credits
+## 🤝 Credits
 
-Co Authored by gvmfhy & Claude Sonnet 4.5 (Anthropic)
+Co-Authored by gvmfhy & Claude Sonnet 4.5 (Anthropic)
 
-Built specifically for translating "Networking for Spies" (Russian → English), but designed to be reusable for any translation project.
+Built as a flexible, multilingual tool for translating any PDF document between any language pair using Claude Code.
+
+---
+
+**Ready to start?**
+
+```bash
+python3 extract_pdf.py "your-document.pdf"
+```

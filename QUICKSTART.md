@@ -1,107 +1,154 @@
-# Quick Start Guide - PDF Translation
+# Quick Start Guide - Multilingual PDF Translation
 
-## Current Status
+Get started translating PDFs between any language pair in 3 steps.
 
-✅ **System is ready!**
-- PDF extracted: 274 pages → 14 chunks
-- Progress tracking: Active
-- Ready to translate: Chunk 1
+## Step 1: Extract PDF & Configure Languages
 
-## How to Translate (Simple 3-Step Process)
+```bash
+python3 extract_pdf.py "your-document.pdf"
+```
 
-### Step 1: View Next Chunk
+**Interactive prompts will ask:**
+
+1. **Source language** - Language of your PDF
+2. **Target language** - Desired translation language
+
+**Example:**
+```
+Select source language:
+  1. en  - English
+  2. fr  - Français
+  ...
+Enter number: 1
+
+Select target language:
+  1. en  - English
+  2. fr  - Français
+  ...
+Enter number: 2
+```
+
+**Result:**
+- Creates `chunks/` directory with text segments
+- Creates `progress.json` with configuration
+- Ready for translation!
+
+## Step 2: Translate Chunks
+
 ```bash
 python3 translate_helper.py --next
 ```
 
-This shows you the Russian text to translate.
-
-### Step 2: Ask Claude Code to Translate
-
-In this Claude Code session, simply say:
+This shows the next chunk to translate. Then tell Claude:
 
 ```
-"Translate chunk 1 to English and save it"
+"Translate this chunk and save it"
 ```
 
-Or for multiple chunks:
-
+**OR** translate multiple at once:
 ```
-"Translate the next 3 chunks"
-```
-
-### Step 3: Check Progress
-
-```bash
-python3 translate_helper.py --status
+"Translate the next 5 chunks"
+"Translate all remaining chunks"
 ```
 
-## When Translation is Complete
-
-Assemble the final book:
+## Step 3: Assemble Final Output
 
 ```bash
 python3 assemble_output.py
 ```
 
-This creates:
-- `output/[book_name]_english.md` - Markdown version
-- `output/[book_name]_english.html` - Styled web version
+**Result:**
+- Creates `output/your-document_[lang].md` (Markdown)
+- Creates `output/your-document_[lang].html` (HTML)
+- Complete translated document!
 
-## Example Translation Session
+## That's It!
 
-```
-You: "Show translation status"
-Claude: [Shows 0/14 chunks done]
+### Check Progress Anytime
 
-You: "Translate chunk 1"
-Claude: [Reads chunk, translates, saves to translations/]
-
-You: "Continue with chunk 2"
-Claude: [Translates and saves]
-
-You: "What's our progress now?"
-Claude: [Shows 2/14 chunks done]
-
-You: "Let's do 3 more chunks"
-Claude: [Translates chunks 3, 4, 5]
-
-[Take a break - progress is saved]
-
-You: "Resume translation"
-Claude: [Starts from chunk 6]
+```bash
+python3 translate_helper.py --status
 ```
 
-## File Locations
+### Resume After Break
 
+```bash
+python3 translate_helper.py --next
 ```
-~/pdf-translator/
-├── chunks/                      ← Russian source text (read-only)
-├── translations/                ← English translations (output)
-├── output/                      ← Final assembled book
-└── progress.json               ← Tracking file
+
+The system remembers where you left off!
+
+---
+
+## Common Language Pairs
+
+### English → French
+```bash
+python3 extract_pdf.py "book.pdf"
+# Select: 1 (English) → 2 (Français)
 ```
+
+### Spanish → English
+```bash
+python3 extract_pdf.py "libro.pdf" --source-lang es --target-lang en
+```
+
+### German → French
+```bash
+python3 extract_pdf.py "buch.pdf" --source-lang de --target-lang fr
+```
+
+---
 
 ## Quick Commands Reference
 
 | Action | Command |
 |--------|---------|
+| Extract PDF | `python3 extract_pdf.py "file.pdf"` |
 | Check status | `python3 translate_helper.py --status` |
 | Show next chunk | `python3 translate_helper.py --next` |
 | Show specific chunk | `python3 translate_helper.py --chunk 5` |
 | Assemble final output | `python3 assemble_output.py` |
-| Check what's assembled | `python3 assemble_output.py --status` |
+| Check assembly status | `python3 assemble_output.py --status` |
 
-## Ready to Start?
+---
 
-Try:
+## Example Translation Session
+
 ```
-"Show me chunk 1 to translate"
+You: "python3 extract_pdf.py 'mybook.pdf'"
+System: [Asks for source/target languages]
+You: [Select English → French]
+
+You: "python3 translate_helper.py --next"
+System: [Shows chunk 1 content]
+
+You (to Claude): "Translate this chunk and save it"
+Claude: [Translates and saves to translations/]
+
+You: "Translate the next 3 chunks"
+Claude: [Translates chunks 2, 3, 4]
+
+[Take a break - progress is saved]
+
+You: "python3 translate_helper.py --status"
+System: [Shows 4/10 chunks done]
+
+You (to Claude): "Continue translating"
+Claude: [Picks up from chunk 5]
+
+[When all done]
+You: "python3 assemble_output.py"
+System: [Creates final translated document]
 ```
 
-Then:
-```
-"Translate this chunk to English and save it"
-```
+---
 
-That's it! The system handles the rest.
+## Need Help?
+
+See full documentation in [README.md](README.md)
+
+**Common issues:**
+- PDF not found? Check file path
+- Want to restart? Delete `progress.json` and re-run step 1
+- Translation quality? Provide context to Claude about document type
