@@ -67,33 +67,34 @@ Shows:
 - Progress percentage
 - List of translated/pending chunks
 
-### 3. Translate Chunks
+### 3. Translate Chunks Automatically
 
-**Interactive approach:**
+**Fully automatic translation with Claude Code:**
 
 ```bash
-# Show next untranslated chunk
+python3 auto_translate.py
+```
+
+This shows you a simple command to copy-paste. Then just tell Claude Code:
+
+```
+"Translate all remaining chunks from English to Français automatically"
+```
+
+Claude Code will automatically:
+- Read each chunk
+- Translate it
+- Save to translations/
+- Continue with the next one
+- Report progress
+
+**Alternative - Manual chunk by chunk:**
+
+```bash
 python3 translate_helper.py --next
 ```
 
-This displays the source text. Then tell Claude Code:
-
-```
-"Translate this chunk and save it"
-```
-
-or
-
-```
-"Translate chunk 1 from English to French and save it"
-```
-
-**Batch translation:**
-```
-"Translate the next 5 chunks"
-"Translate chunks 1 through 10"
-"Continue translating from where we left off"
-```
+Then tell Claude Code: `"Translate this chunk and save it"`
 
 ### 4. Assemble Final Output
 

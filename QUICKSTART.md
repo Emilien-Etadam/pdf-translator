@@ -33,23 +33,24 @@ Enter number: 2
 - Creates `progress.json` with configuration
 - Ready for translation!
 
-## Step 2: Translate Chunks
+## Step 2: Translate Automatically
 
 ```bash
-python3 translate_helper.py --next
+python3 auto_translate.py
 ```
 
-This shows the next chunk to translate. Then tell Claude:
+This shows you what to tell Claude Code. Copy the command and paste it here!
 
+Example:
 ```
-"Translate this chunk and save it"
+"Translate all remaining chunks from English to Français automatically"
 ```
 
-**OR** translate multiple at once:
-```
-"Translate the next 5 chunks"
-"Translate all remaining chunks"
-```
+Claude Code does everything automatically:
+- ✅ Reads each chunk
+- ✅ Translates it
+- ✅ Saves the result
+- ✅ Continues with next chunk
 
 ## Step 3: Assemble Final Output
 
