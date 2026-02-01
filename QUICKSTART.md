@@ -39,18 +39,14 @@ Enter number: 2
 python3 auto_translate.py
 ```
 
-This shows you what to tell Claude Code. Copy the command and paste it here!
+**That's it!** Claude Code automatically detects and translates all chunks!
 
-Example:
-```
-"Translate all remaining chunks from English to Français automatically"
-```
-
-Claude Code does everything automatically:
-- ✅ Reads each chunk
-- ✅ Translates it
-- ✅ Saves the result
-- ✅ Continues with next chunk
+Like AUTOCLAUDE, it will:
+- ✅ Read each chunk
+- ✅ Translate it
+- ✅ Save the result
+- ✅ Continue with next chunk
+- ✅ Report progress
 
 ## Step 3: Assemble Final Output
 

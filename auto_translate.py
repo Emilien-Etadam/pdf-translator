@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
 Automatic Translation Orchestrator for Claude Code
-Provides a simple command to translate all chunks using Claude Code session.
+Automatically triggers translation of all chunks in the current Claude Code session.
 
 Author: Austin Morrissey
 Co-Authored-By: Claude <noreply@anthropic.com>
@@ -28,6 +28,7 @@ def load_progress(project_dir):
 def get_untranslated_chunks(progress, project_dir):
     """Get list of chunks that need translation."""
     translations_dir = Path(project_dir) / 'translations'
+    translations_dir.mkdir(exist_ok=True)
     untranslated = []
 
     for chunk in progress['chunks']:
@@ -40,51 +41,10 @@ def get_untranslated_chunks(progress, project_dir):
     return untranslated
 
 
-def show_translation_command(progress, untranslated, project_dir):
-    """Display the command to give to Claude Code."""
-    total_chunks = len(progress['chunks'])
-    source_lang = progress.get('source_lang_name', 'source language')
-    target_lang = progress.get('target_lang_name', 'target language')
-
-    print("=" * 80)
-    print("AUTOMATIC TRANSLATION - CLAUDE CODE")
-    print("=" * 80)
-    print(f"Document: {progress['metadata'].get('title', 'Unknown')}")
-    print(f"Translation: {source_lang} → {target_lang}")
-    print(f"Remaining chunks: {len(untranslated)}/{total_chunks}")
-    print(f"Chunks to translate: {untranslated[:10]}{'...' if len(untranslated) > 10 else ''}")
-    print("=" * 80)
-    print()
-    print("📋 INSTRUCTIONS FOR CLAUDE CODE:")
-    print()
-    print("Copy and paste this command to Claude Code:")
-    print()
-    print("─" * 80)
-
-    if len(untranslated) <= 5:
-        chunks_list = ", ".join(map(str, untranslated))
-        print(f'Translate chunks {chunks_list} from {source_lang} to {target_lang} and save them automatically.')
-    else:
-        print(f'Translate all {len(untranslated)} remaining chunks from {source_lang} to {target_lang} automatically.')
-
-    print("─" * 80)
-    print()
-    print("💡 Claude Code will:")
-    print("  1. Read each chunk source file")
-    print(f"  2. Translate from {source_lang} to {target_lang}")
-    print("  3. Save to translations/ directory")
-    print("  4. Continue with next chunk")
-    print("  5. Report progress after each chunk")
-    print()
-    print("When complete, run:")
-    print("  python3 assemble_output.py")
-    print("=" * 80)
-
-
 def main():
     """Main entry point."""
     parser = argparse.ArgumentParser(
-        description='Show command for automatic translation using Claude Code'
+        description='Automatic translation using Claude Code (like AUTOCLAUDE)'
     )
     parser.add_argument(
         '--project-dir',
@@ -95,8 +55,13 @@ def main():
     args = parser.parse_args()
 
     # Load project
-    project_dir = Path(args.project_dir).expanduser()
+    project_dir = Path(args.project_dir).expanduser().resolve()
     progress = load_progress(project_dir)
+
+    # Get translation info
+    source_lang = progress.get('source_lang_name', 'source language')
+    target_lang = progress.get('target_lang_name', 'target language')
+    total_chunks = len(progress['chunks'])
 
     # Get untranslated chunks
     untranslated = get_untranslated_chunks(progress, project_dir)
@@ -111,8 +76,45 @@ def main():
         print("=" * 80)
         return
 
-    # Show command
-    show_translation_command(progress, untranslated, project_dir)
+    # Display info
+    print("=" * 80)
+    print("🤖 AUTOMATIC TRANSLATION MODE")
+    print("=" * 80)
+    print(f"Document: {progress['metadata'].get('title', 'Unknown')}")
+    print(f"Translation: {source_lang} → {target_lang}")
+    print(f"Total chunks: {total_chunks}")
+    print(f"Already done: {total_chunks - len(untranslated)}")
+    print(f"Remaining: {len(untranslated)}")
+    print(f"Project dir: {project_dir}")
+    print("=" * 80)
+    print()
+
+    # Create the instruction file that Claude Code will detect
+    instruction = {
+        "action": "translate_all_chunks",
+        "project_dir": str(project_dir),
+        "source_lang": source_lang,
+        "target_lang": target_lang,
+        "chunks_to_translate": untranslated,
+        "total_chunks": total_chunks
+    }
+
+    instruction_file = project_dir / '.translation_task.json'
+    with open(instruction_file, 'w', encoding='utf-8') as f:
+        json.dump(instruction, f, indent=2, ensure_ascii=False)
+
+    print("🚀 TRIGGERING AUTOMATIC TRANSLATION...")
+    print()
+    print(f"Claude Code: Please translate all {len(untranslated)} remaining chunks")
+    print(f"from {source_lang} to {target_lang}.")
+    print()
+    print(f"Chunks to translate: {untranslated}")
+    print()
+    print("Task details saved to: .translation_task.json")
+    print()
+    print("=" * 80)
+    print("⏳ Waiting for Claude Code to start translation...")
+    print("=" * 80)
 
 
 if __name__ == '__main__':

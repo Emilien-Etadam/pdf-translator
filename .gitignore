@@ -4,3 +4,4 @@ chunks/
 translations/
 output/
 progress.json
+.translation_task.json

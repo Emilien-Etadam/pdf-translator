@@ -69,24 +69,20 @@ Shows:
 
 ### 3. Translate Chunks Automatically
 
-**Fully automatic translation with Claude Code:**
+**Fully automatic translation (like AUTOCLAUDE):**
 
 ```bash
 python3 auto_translate.py
 ```
 
-This shows you a simple command to copy-paste. Then just tell Claude Code:
+Claude Code will automatically detect and translate all remaining chunks!
 
-```
-"Translate all remaining chunks from English to Français automatically"
-```
-
-Claude Code will automatically:
-- Read each chunk
-- Translate it
-- Save to translations/
-- Continue with the next one
-- Report progress
+The script:
+- Shows what needs translation
+- Triggers Claude Code automatically
+- Claude Code translates all chunks one by one
+- Saves each translation
+- Reports progress
 
 **Alternative - Manual chunk by chunk:**
 
